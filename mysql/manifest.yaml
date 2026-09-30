@@ -81,8 +81,7 @@ spec:
             periodSeconds: 5
           volumeMounts:
             - name: mysql
-              mountPath: /var/lib/mysql
-              subPath: mysql-data
+              mountPath: /data/db
             - name: mysql-config
               mountPath: /etc/mysql/conf.d/my.cnf
               subPath: my.cnf
