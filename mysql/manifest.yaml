@@ -69,16 +69,16 @@ spec:
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: "RoboShop@1"
-          readinessProbe:
-            tcpSocket:
-              port: 3306
-            initialDelaySeconds: 20
-            periodSeconds: 10
-          livenessProbe:
-            tcpSocket:
-              port: 3306
-            initialDelaySeconds: 15
-            periodSeconds: 5
+          # readinessProbe:
+          #   tcpSocket:
+          #     port: 3306
+          #   initialDelaySeconds: 20
+          #   periodSeconds: 10
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: 3306
+          #   initialDelaySeconds: 15
+          #   periodSeconds: 5
           volumeMounts:
             - name: mysql
               mountPath: /data/db
