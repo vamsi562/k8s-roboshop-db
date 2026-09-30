@@ -58,13 +58,13 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: liveness-port
+              port: 8080
             failureThreshold: 1
             periodSeconds: 15
           livenessProbe:
             httpGet:
               path: /health
-              port: liveness-port
+              port: 8080
             failureThreshold: 1
             periodSeconds: 15
 
