@@ -32,15 +32,6 @@ spec:
       targetPort: 27017 #containerPort
 
 ---
-apiVersion: storage.k8s.io/v1 #storage class
-kind: StorageClass
-metadata:
-  name: mongodb-storage-class
-provisioner: ebs.csi.aws.com
-reclaimPolicy: Retain
-volumeBindingMode: WaitForFirstConsumer
-
----
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
