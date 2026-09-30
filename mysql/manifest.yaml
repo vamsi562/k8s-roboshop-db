@@ -1,41 +1,51 @@
 # service, headless service, statefulset, persistent volume claim
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql
+  namespace: roboshop
+data:
+  my.cnf: |
+    [mysqld]
+    innodb_redo_log_capacity = 2G
+---
 apiVersion: v1 #service
 kind: Service
 metadata:
-  name: mongodb
+  name: mysql
   namespace: roboshop
 spec:
   selector:
     purpose: roboshop
-    component: mongodb
+    component: mysql
     tier: db
   ports:
     - protocol: TCP
-      port: 27017 #servicePort
-      targetPort: 27017 #containerPort
+      port: 3306 #servicePort
+      targetPort: 3306 #containerPort
 
 ---
 apiVersion: v1 #headless service
 kind: Service
 metadata:
-  name: mongodb-headless
+  name: mysql-headless
   namespace: roboshop
 spec:
   clusterIP: None #headless service
   selector:
     purpose: roboshop
-    component: mongodb
+    component: mysql
     tier: db
   ports:
     - protocol: TCP
-      port: 27017 #servicePort
-      targetPort: 27017 #containerPort
+      port: 3306 #servicePort
+      targetPort: 3306 #containerPort
 
 ---
 apiVersion: storage.k8s.io/v1 #storage class
 kind: StorageClass
 metadata:
-  name: mongodb-storage-class
+  name: mysql-storage-class
 provisioner: ebs.csi.aws.com
 reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
@@ -44,35 +54,42 @@ volumeBindingMode: WaitForFirstConsumer
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mongodb
+  name: mysql
   namespace: roboshop
 spec:
   selector:
     matchLabels:
       purpose: roboshop
-      component: mongodb
+      component: mysql
       tier: db # has to match .spec.template.metadata.labels
-  serviceName: "mongodb-headless" # headless service name has to match the serviceName in stateful set
+  serviceName: "mysql-headless" # headless service name has to match the serviceName in stateful set
   replicas: 3 # by default is 1
   template:
     metadata:
       labels:
         purpose: roboshop
-        component: mongodb
+        component: mysql
         tier: db
     spec:
       containers:
-        - name: mongodb
-          image: vamsi562/mongodb:v1
+        - name: mysql
+          image: vamsi562/mysql:v1
           volumeMounts:
-            - name: mongodb
-              mountPath: /data/db
+            - name: mysql
+              mountPath: /var/lib/mysql
+            - name: mysql-config
+              mountPath: /etc/mysql/conf.d/my.cnf
+              subPath: my.cnf
+      volumes:
+        - name: mysql-config
+          configMap:
+            name: mysql
   volumeClaimTemplates:
     - metadata:
-        name: mongodb
+        name: mysql
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: "mongodb-storage-class" #storage class name
+        storageClassName: "mysql-storage-class" #storage class name
         resources:
           requests:
             storage: 1Gi
