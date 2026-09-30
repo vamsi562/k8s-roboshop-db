@@ -1,4 +1,17 @@
 # service, headless service, statefulset, persistent volume claim
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq
+  namespace: roboshop
+  labels:
+    purpose: roboshop
+    component: rabbitmq
+    tier: db
+data:
+  RABBITMQ_DEFAULT_USER: "roboshop"
+  RABBITMQ_DEFAULT_PASS: "roboshop123"
+---
 apiVersion: v1 #service
 kind: Service
 metadata:
@@ -64,9 +77,23 @@ spec:
       containers:
         - name: rabbitmq
           image: rabbitmq:3
+          imagePullPolicy: always
           volumeMounts:
             - name: rabbitmq
               mountPath: /var/lib/rabbitmq
+          envFrom:
+            - configMapRef:
+                name: rabbitmq
+          readinessProbe:
+            tcpSocket:
+              port: 5672
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5672
+            initialDelaySeconds: 15
+            periodSeconds: 5
   volumeClaimTemplates:
     - metadata:
         name: rabbitmq

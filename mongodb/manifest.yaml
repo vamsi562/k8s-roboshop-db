@@ -64,6 +64,17 @@ spec:
       containers:
         - name: mongodb
           image: vamsi562/mongodb:v1
+          imagePullPolicy: always
+          readinessProbe: # check if application is ready to serve requests
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe: # check if application is alive or not.
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 15
+            periodSeconds: 5
           volumeMounts:
             - name: mongodb
               mountPath: /data/db
