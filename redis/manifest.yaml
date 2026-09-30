@@ -83,7 +83,7 @@ spec:
         name: redis
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: "redis-storage-class" #storage class name
+        storageClassName: "storage-class" #storage class name
         resources:
           requests:
             storage: 1Gi

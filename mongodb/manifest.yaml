@@ -74,7 +74,7 @@ spec:
         name: mongodb
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: "mongodb-storage-class" #storage class name
+        storageClassName: "storage-class" #storage class name
         resources:
           requests:
             storage: 1Gi
