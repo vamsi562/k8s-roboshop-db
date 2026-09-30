@@ -66,10 +66,13 @@ spec:
         - name: mysql
           image: vamsi562/mysql:v1
           imagePullPolicy: Always
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "RoboShop@1"
           readinessProbe:
             tcpSocket:
               port: 3306
-            initialDelaySeconds: 10
+            initialDelaySeconds: 20
             periodSeconds: 10
           livenessProbe:
             tcpSocket:
@@ -79,6 +82,7 @@ spec:
           volumeMounts:
             - name: mysql
               mountPath: /var/lib/mysql
+              subPath: mysql-data
             - name: mysql-config
               mountPath: /etc/mysql/conf.d/my.cnf
               subPath: my.cnf
