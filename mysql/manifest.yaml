@@ -63,7 +63,7 @@ spec:
       component: mysql
       tier: db # has to match .spec.template.metadata.labels
   serviceName: "mysql-headless" # headless service name has to match the serviceName in stateful set
-  replicas: 3 # by default is 1
+  replicas: 1 # by default is 1
   template:
     metadata:
       labels:
