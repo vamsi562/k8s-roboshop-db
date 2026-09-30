@@ -77,7 +77,7 @@ spec:
       containers:
         - name: rabbitmq
           image: rabbitmq:3
-          imagePullPolicy: always
+          imagePullPolicy: Always
           volumeMounts:
             - name: rabbitmq
               mountPath: /var/lib/rabbitmq

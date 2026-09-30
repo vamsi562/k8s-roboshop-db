@@ -64,7 +64,7 @@ spec:
       containers:
         - name: redis
           image: redis:7.0
-          imagePullPolicy: always
+          imagePullPolicy: Always
           readinessProbe: # check if application is ready to serve requests
             tcpSocket:
               port: 6379
