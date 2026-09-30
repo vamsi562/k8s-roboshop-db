@@ -1,106 +1,99 @@
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: catalogue
+  name: shipping
   namespace: roboshop
-  labels:
-    purpose: roboshop
-    component: catalogue
-    tier: backend
 data:
-  MONGO: "true"
-  MONGO_URL: "mongodb://mongodb:27017/catalogue"
-
+  CART_ENDPOINT: "cart:8080"
+  DB_HOST: "mysql"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: catalogue
-  labels:
-    purpose: roboshop
-    component: catalogue
-    tier: backend
+  name: shipping
   namespace: roboshop
+  # these are replica set labels
+  labels:
+    project: roboshop
+    component: shipping
+    tier: backend
 spec:
-  # Specify replicas to be created
-  replicas: 2
+  replicas: 1
   selector:
+    # these labels are used to select pods
     matchLabels:
-      purpose: roboshop
-      component: catalogue
+      project: roboshop
+      component: shipping
       tier: backend
+  # pod definition
   template:
-    # pod definition
     metadata:
       labels:
-        purpose: roboshop
-        component: catalogue
+        project: roboshop
+        component: shipping
         tier: backend
     spec:
       containers:
-        - name: catalogue
-          image: vamsi562/catalogue:v1
+        - name: shipping
+          image: vamsi562/shipping:v1
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
-                name: catalogue
+                name: shipping
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "300m"
           ports:
             - name: liveness-port
               containerPort: 8080
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "100m"
-            limits:
-              memory: "256Mi"
-              cpu: "200m"
           readinessProbe:
             httpGet:
               path: /health
-              port: 8080
-            initialDelaySeconds: 10
+              port: liveness-port
+            initialDelaySeconds: 45
             failureThreshold: 3
             periodSeconds: 15
           livenessProbe:
             httpGet:
               path: /health
-              port: 8080
-            initialDelaySeconds: 15
+              port: liveness-port
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 15
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: catalogue
+  name: shipping
   namespace: roboshop
 spec:
   selector:
-    purpose: roboshop
-    component: catalogue
+    project: roboshop
+    component: shipping
     tier: backend
   ports:
     - protocol: TCP
-      port: 8080 #servicePort
-      targetPort: 8080 #containerPort
-
---- #horizontal pod autoscaler
+      port: 8080 # service port
+      targetPort: 8080 # container port
+---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: catalogue
+  name: shipping
   namespace: roboshop
   labels:
     purpose: roboshop
-    component: catalogue
+    component: shipping
     tier: backend
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: catalogue
+    name: shipping
   minReplicas: 1
   maxReplicas: 10
   metrics:
